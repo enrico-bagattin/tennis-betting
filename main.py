@@ -15,19 +15,19 @@ from dataPreparation import *
 
 
 # Import data
-paths = list(glob.glob("matches/20*.xlsx"))
+years = [2017, 2018, 2019, 2020]
+yearsForFeatures = [2016, 2017, 2018, 2019, 2020]
+paths = []
+for y in years:
+    paths.append('matches/' + str(y) + '.xlsx')
+availablePaths = list(glob.glob("matches/20*.xlsx"))
 matches = [pd.read_excel(path) for path in paths]
+yearZeroForFeatures = pd.read_excel('matches/' + str(years[0]-1) + '.xlsx')
 # TODO: Load matches based on number of past years choosen
 df = pd.concat(matches, ignore_index=True, sort=False)
 
-neededCols = ['Location', 'Tournament', 'Series', 'Court', 'Surface',
-       'Round', 'Winner', 'Loser', 'WRank', 'LRank', 'WPts', 'LPts',
-       'Comment', 'B365W', 'B365L', 'PSW', 'PSL', 'AvgW', 'AvgL']
-df = df[neededCols]
-
-df.columns = ['Location', 'Tournament', 'Series', 'Court', 'Surface',
-       'Round', 'Player0', 'Player1', 'Rank0', 'Rank1', 'Pts0', 'Pts1',
-       'Comment', 'B3650', 'B3651', 'PS0', 'PS1', 'Avg0', 'Avg1']
+df = removeWinnerLoserReference(df)
+yearZeroForFeatures = removeWinnerLoserReference(yearZeroForFeatures)
 
 rankDefault = max(df['Rank0'].max(), df['Rank1'].max())+1
 df.fillna({'Rank0': rankDefault, 'Rank1': rankDefault, 'Pts0': 0, 'Pts1': 0}, inplace=True)
@@ -49,6 +49,6 @@ for index, row in nullOddsDf.iterrows():
 
 df.dropna(subset=['Avg0', 'Avg1'], inplace=True) # Drop rows that hasn't similar rank matches
 
-# X = pd.get_dummies(df)
+X = addInjuriesAndWinningStreakFeatures(df, yearZeroForFeatures, yearsForFeatures)
 
-X = addEloRatingFeature(df)
+X.to_excel('test2.xls')

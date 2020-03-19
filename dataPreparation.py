@@ -69,23 +69,25 @@ def addEloRatingFeature(X, defaultElo = 1500):
     oldEloRatings = pd.Series(np.ones(players.size) * defaultElo, index=players)
     kFactor = 32 if players.size < 2100 else (24 if 2100 <= players.size <= 2400 else 16)
 
-    PLAYER_0_SCORE = 1 # We assume that player0 is always the winner, the score is 1 for winner, 0 for the loser
+    # Player 0 wins always
+    PLAYER_0_SCORE = 1
     PLAYER_1_SCORE = 0
 
     # New feature columns
-    player0EloRating = player1EloRating = pd.Series(np.ones(X.shape[0]) * defaultElo)
+    player0EloRating = pd.Series(np.ones(X.shape[0]) * defaultElo)
+    player1EloRating = pd.Series(np.ones(X.shape[0]) * defaultElo)
 
     printProgressBar(0, X.shape[0], prefix='Progress:', suffix='Complete')
     for i, row in X.iterrows():
-        oldEloRatingPlayer0 = oldEloRatings[row.Player0]
-        oldEloRatingPlayer1 = oldEloRatings[row.Player1]
+        # First assign the rating, then update it for the next matches with the current match information
+        player0EloRating[i] = oldEloRatingPlayer0 = oldEloRatings[row.Player0]
+        player1EloRating[i] = oldEloRatingPlayer1 = oldEloRatings[row.Player1]
 
         expectedScorePlayer0 = expectedScore(oldEloRatingPlayer0, oldEloRatingPlayer1)
         expectedScorePlayer1 = expectedScore(oldEloRatingPlayer1, oldEloRatingPlayer0)
 
-        # Save the new rate in players for the next match and in the new feature column
-        oldEloRatings[row.Player0] = player0EloRating[i] = eloRating(oldEloRatingPlayer0, expectedScorePlayer0, PLAYER_0_SCORE, k_factor=kFactor)
-        oldEloRatings[row.Player1] = player1EloRating[i] = eloRating(oldEloRatingPlayer1, expectedScorePlayer1, PLAYER_1_SCORE, k_factor=kFactor)
+        oldEloRatings[row.Player0] = eloRating(oldEloRatingPlayer0, expectedScorePlayer0, PLAYER_0_SCORE, k_factor=kFactor)
+        oldEloRatings[row.Player1] = eloRating(oldEloRatingPlayer1, expectedScorePlayer1, PLAYER_1_SCORE, k_factor=kFactor)
 
         printProgressBar(i, X.shape[0], prefix='Progress:', suffix='Complete')
 

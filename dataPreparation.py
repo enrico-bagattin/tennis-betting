@@ -30,7 +30,8 @@ def findOddsForRow (row,  df):
     foundRows = pd.DataFrame()
     nearRank = 10
     while foundRows.empty and nearRank <= 100:
-        foundRows = df[((row.Rank0 - nearRank) < df.Rank0) & (df.Rank0 < (row.Rank0 + nearRank)) & ((row.Rank1 - nearRank) < df.Rank1) & (df.Rank1 < (row.Rank1 + nearRank))]
+        foundRows = df[((row.Rank0 - nearRank) < df.Rank0) & (df.Rank0 < (row.Rank0 + nearRank))
+                       & ((row.Rank1 - nearRank) < df.Rank1) & (df.Rank1 < (row.Rank1 + nearRank))]
         nearRank += 10
 
     return ( foundRows["Avg0"].mean(), foundRows["Avg1"].mean() ) if not foundRows.empty else ( None, None )
@@ -86,10 +87,12 @@ def addEloRatingFeature(X, defaultElo = 1500):
         expectedScorePlayer0 = expectedScore(oldEloRatingPlayer0, oldEloRatingPlayer1)
         expectedScorePlayer1 = expectedScore(oldEloRatingPlayer1, oldEloRatingPlayer0)
 
-        oldEloRatings[row.Player0] = eloRating(oldEloRatingPlayer0, expectedScorePlayer0, PLAYER_0_SCORE, k_factor=kFactor)
-        oldEloRatings[row.Player1] = eloRating(oldEloRatingPlayer1, expectedScorePlayer1, PLAYER_1_SCORE, k_factor=kFactor)
+        oldEloRatings[row.Player0] = eloRating(oldEloRatingPlayer0, expectedScorePlayer0,
+                                               PLAYER_0_SCORE, k_factor=kFactor)
+        oldEloRatings[row.Player1] = eloRating(oldEloRatingPlayer1, expectedScorePlayer1,
+                                               PLAYER_1_SCORE, k_factor=kFactor)
 
-        printProgressBar(i, X.shape[0], prefix='Progress:', suffix='Complete')
+        printProgressBar(i+1, X.shape[0], prefix='Progress:', suffix='Complete')
 
     return X.assign(EloRating0 = player0EloRating.values, EloRating1 = player1EloRating.values)
 
@@ -132,14 +135,15 @@ def addMatchesPlayedAndWonFeatures(X, yearZeroForFeatures, years):
         matchesWon0[i] = matchesWon[row.Date.year - 1][row.Player0]
         matchesWon1[i] = matchesWon[row.Date.year - 1][row.Player1]
 
-        printProgressBar(i, X.shape[0], prefix='Progress:', suffix='Complete')
+        printProgressBar(i+1, X.shape[0], prefix='Progress:', suffix='Complete')
 
     matchesPlayed0.fillna(0, inplace=True)
     matchesPlayed1.fillna(0, inplace=True)
     matchesWon0.fillna(0, inplace=True)
     matchesWon1.fillna(0, inplace=True)
 
-    return X.assign(MatchesPlayed0 = matchesPlayed0.values, MatchesPlayed1 = matchesPlayed1.values, MatchesWon0 = matchesWon0.values, MatchesWon1 = matchesWon1.values)
+    return X.assign(MatchesPlayed0 = matchesPlayed0.values, MatchesPlayed1 = matchesPlayed1.values,
+                    MatchesWon0 = matchesWon0.values, MatchesWon1 = matchesWon1.values)
 
 
 def addInjuriesAndWinningStreakFeatures(X, yearZeroForFeatures, years):
@@ -166,18 +170,21 @@ def addInjuriesAndWinningStreakFeatures(X, yearZeroForFeatures, years):
     printProgressBar(0, data.shape[0], prefix='Progress:', suffix='Complete')
     k = 0
     for i, row in data.iterrows():
+        if row.Date.year != years[0]: # Skip year zero (used only for historical data)
+            winningStreak0[k] = currentStreak[row.Player0]
+            injuries0[k] = injuries[(injuries.Date >= (row.Date - pd.DateOffset(months=3)))
+                                    & (injuries.Player == row.Player0)].count().max()
+            injuries1[k] = injuries[(injuries.Date >= (row.Date - pd.DateOffset(months=3)))
+                                    & (injuries.Player == row.Player1)].count().max()
+            k += 1
+
         currentStreak[row.Player0] = float(currentStreak[row.Player0]) + 1
         currentStreak[row.Player1] = 0
 
         if row.Comment != "Completed":
             injuries.loc[len(injuries)] = [row.Date, row.Player1]
 
-        if row.Date.year != years[0]: # Skip year zero (used only for historical data)
-            winningStreak0[k] = currentStreak[row.Player0]
-            injuries0[k] = injuries[(injuries.Date >= (row.Date - pd.DateOffset(months=3))) & (injuries.Player == row.Player0)].count().max()
-            injuries1[k] = injuries[(injuries.Date >= (row.Date - pd.DateOffset(months=3))) & (injuries.Player == row.Player1)].count().max()
-            k += 1
+        printProgressBar(i+1, data.shape[0], prefix='Progress:', suffix='Complete')
 
-        printProgressBar(i, data.shape[0], prefix='Progress:', suffix='Complete')
-
-    return X.assign(Injuries0=injuries0.values, Injuries1=injuries1.values, WinningStreak0=winningStreak0.values, WinningStreak1=np.zeros(X.shape[0]))
+    return X.assign(Injuries0=injuries0.values, Injuries1=injuries1.values, WinningStreak0=winningStreak0.values,
+                    WinningStreak1=np.zeros(X.shape[0]))

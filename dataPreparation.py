@@ -107,7 +107,7 @@ def addMatchesPlayedAndWonFeatures(X, yearZeroForFeatures, years):
         yearZeroForFeatures     - Dataset of the year before the first one
         years                   - Years considered
     """
-    data = pd.concat([yearZeroForFeatures, X])
+    data = pd.concat([yearZeroForFeatures, X], sort=False)
 
     # New feature columns
     matchesPlayed0 = pd.Series(np.zeros(X.shape[0]))
@@ -156,7 +156,7 @@ def addInjuriesAndWinningStreakFeatures(X, yearZeroForFeatures, years):
         yearZeroForFeatures     - Dataset of the year before the first one
         years                   - Years considered
     """
-    data = pd.concat([yearZeroForFeatures, X], ignore_index=True)
+    data = pd.concat([yearZeroForFeatures, X], ignore_index=True, sort=False)
 
     # New features
     injuries0 = pd.Series(np.zeros(X.shape[0]))

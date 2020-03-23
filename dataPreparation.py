@@ -162,6 +162,7 @@ def addInjuriesAndWinningStreakFeatures(X, yearZeroForFeatures, years):
     injuries0 = pd.Series(np.zeros(X.shape[0]))
     injuries1 = pd.Series(np.zeros(X.shape[0]))
     winningStreak0 = pd.Series(np.zeros(X.shape[0]))
+    winningStreak1 = pd.Series(np.zeros(X.shape[0]))
 
     players = pd.concat([data.Player0, data.Player1]).unique()
     injuries = pd.DataFrame(columns=['Date', 'Player'])
@@ -172,6 +173,7 @@ def addInjuriesAndWinningStreakFeatures(X, yearZeroForFeatures, years):
     for i, row in data.iterrows():
         if row.Date.year != years[0]: # Skip year zero (used only for historical data)
             winningStreak0[k] = currentStreak[row.Player0]
+            winningStreak1[k] = currentStreak[row.Player1]
             injuries0[k] = injuries[(injuries.Date >= (row.Date - pd.DateOffset(months=3)))
                                     & (injuries.Player == row.Player0)].count().max()
             injuries1[k] = injuries[(injuries.Date >= (row.Date - pd.DateOffset(months=3)))
@@ -187,4 +189,4 @@ def addInjuriesAndWinningStreakFeatures(X, yearZeroForFeatures, years):
         printProgressBar(i+1, data.shape[0], prefix='Progress:', suffix='Complete')
 
     return X.assign(Injuries0=injuries0.values, Injuries1=injuries1.values, WinningStreak0=winningStreak0.values,
-                    WinningStreak1=np.zeros(X.shape[0]))
+                    WinningStreak1=winningStreak1.values)

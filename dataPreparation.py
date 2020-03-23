@@ -171,7 +171,7 @@ def addInjuriesAndWinningStreakFeatures(X, yearZeroForFeatures, years):
     printProgressBar(0, data.shape[0], prefix='Progress:', suffix='Complete')
     k = 0
     for i, row in data.iterrows():
-        if row.Date.year != years[0]: # Skip year zero (used only for historical data)
+        if row.Date.year <= years[0]: # Skip year zero (used only for historical data)
             winningStreak0[k] = currentStreak[row.Player0]
             winningStreak1[k] = currentStreak[row.Player1]
             injuries0[k] = injuries[(injuries.Date >= (row.Date - pd.DateOffset(months=3)))

@@ -1,3 +1,7 @@
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix
+
 def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 50, fill = '█', printEnd = "\r"):
     """
     Call in a loop to create terminal progress bar
@@ -18,3 +22,19 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
     # Print New Line on Complete
     if iteration == total:
         print()
+        
+def printConfusionMatrix (y_true, y_pred):
+    """
+    Print the confusion matrix
+    @params
+        y_true  - true values
+        y_pred  - predicted values
+    """
+    conf_stat = confusion_matrix(y_true=y_true, y_pred=y_pred)
+    fig, ax = plt.subplots(figsize=(5,5), tight_layout=True)
+    sns.heatmap(conf_stat, annot=True, fmt=".3f", 
+            linewidths=.5, square = True, 
+            cmap = 'Blues_r',cbar=False);
+    ax.set_ylabel('True Label', fontsize=14);
+    ax.set_xlabel('Predicted Label', fontsize=14);
+    

@@ -1,29 +1,17 @@
-# README #
+# Tennis Betting - LISA EXAM PROJECT #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+This project is built in Python and it uses machine learning to create a prediction model for tennis matches (between 2013-2020).
 
-### What is this repository for? ###
+The project is based on realizing a prediction algorithm to “beat bookmakers” and gaining an advantage in making choices while betting on matches. We choose tennis as a sport where betting in for some reasons:
+1. Variables in tennis are easier analyzable than other sports since we have found the elements of a good betting-strategy and this ones are more distinguishable and “evident” than other sports (for example the surface, the winning streak) ;
+2. Tennis is a zero-sum-game and this is a prerogative for applying powerful features that we have decided to use such as Elo rating for example;
+3. The datasets on the internet that we have found are well-made.
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+In this project we will first of all import the dataset and clean the data, then we will proceed by adding new features to improve the accuracy of the predictions. After a fine tune of the best classificator, we will conclude with a study on how to maximize the return on investment for a betting strategy.
 
-### How do I get set up? ###
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+## How to run
 
-### Contribution guidelines ###
+Just open and run the Python Notebook file "main.ipynb"
 
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+### For more informations about the project, features, prediction models and conclusion please refer to the pdf report.
